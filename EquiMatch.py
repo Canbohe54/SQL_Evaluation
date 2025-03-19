@@ -105,7 +105,7 @@ def expressions_equal(expr1: Expression, expr2: Expression) -> bool:
     # print(expr1, " 与 ", expr2, " 相等")
     return True
 
-def are_sql_equivalent(sql1: str, sql2: str, dialect: str = "mysql") -> bool:
+def is_equi_match(sql1: str, sql2: str, dialect: str = "sqlite") -> bool:
     """
     判断两条 SQL 是否等价（基于 AST 解析），自动处理查询1与查询2之间严格的别名映射。
     """
@@ -177,4 +177,4 @@ FROM T1
 WHERE T2 = 1;
 '''
 
-print(are_sql_equivalent(sql_1, sql_2))  # 输出: True
+print(is_equi_match(sql_1, sql_2))  # 输出: True
