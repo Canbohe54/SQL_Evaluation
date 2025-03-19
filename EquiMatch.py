@@ -29,8 +29,6 @@ def match_aliases(alias_map_sql1: dict, alias_map_sql2: dict) -> dict:
 
     return alias_mapping
 
-from sqlglot.expressions import Identifier  # 单独导入 Identifier
-
 def normalize_expression(expression: Expression, alias_mapping: dict) -> Expression:
     """
     替换查询2中的别名，使其结构与查询1一致，确保别名映射正确。
@@ -95,8 +93,8 @@ def expressions_equal(expr1: Expression, expr2: Expression) -> bool:
         elif isinstance(val1, list) and isinstance(val2, list):
             # 在列表比较时，进行无序比较（递归比较每个元素）
             if not compare_lists_unordered(val1, val2):
-                print(expr1.sql(pretty=True), " 与 ", expr2.sql(pretty=True), " 比较失败")
-                print(f"比较失败: {val1} 与 {val2} 不相等")
+                # print(expr1.sql(pretty=True), " 与 ", expr2.sql(pretty=True), " 比较失败")
+                # print(f"比较失败: {val1} 与 {val2} 不相等")
                 return False
         else:
             if val1 != val2:
@@ -127,7 +125,7 @@ def is_equi_match(sql1: str, sql2: str, dialect: str = "sqlite") -> bool:
         return False
 
 
-# **测试 SQL**
+# demo
 sql_1 = '''
 SELECT 
     id_card, 
@@ -177,4 +175,4 @@ FROM T1
 WHERE T2 = 1;
 '''
 
-print(is_equi_match(sql_1, sql_2))  # 输出: True
+print(is_equi_match(sql_1, sql_2))

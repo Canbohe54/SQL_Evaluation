@@ -1,6 +1,7 @@
 # Custom
 dset.sqlite
 temp*
+*dataset*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

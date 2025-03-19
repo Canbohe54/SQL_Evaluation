@@ -54,7 +54,7 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
             # print("Predicted SQL query does not contain the required columns.")
             return False
         
-        # print(f"Common columns based on values: {common_columns}")  # 输出共同列，帮助调试
+        # print(f"Common columns based on values: {common_columns}")
         # 只保留在pred_result中与gold_result匹配的列
         pred_result = pred_result[common_columns]
         pred_values = pred_result.values  # 重新获取经过筛选后的数值部分
@@ -88,13 +88,13 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
     # 检查pred_result和gold_result中的列是否一致
     if pred_columns == gold_columns:
         # print("The predicted SQL query matches the gold query.")
-        return True  # 完全匹配，准确率为100%
+        return True  # 完全匹配
     else:
         # print("The predicted SQL query is incorrect.")
-        return False  # 结果不匹配，准确率为0%
+        return False  # 结果不匹配
     
-# 示例使用
-db_path = './SQL_Evaluation/dset.sqlite'  # 请替换为你的SQLite数据库路径
+# demo
+db_path = './SQL_Evaluation/dset.sqlite'
 pred_sql = '''
 SELECT 
     id_card, 
@@ -144,4 +144,4 @@ FROM T1
 WHERE T2 = 1;
 '''
 
-print(is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False))
+print(is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=True))
