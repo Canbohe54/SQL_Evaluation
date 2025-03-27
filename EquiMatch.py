@@ -125,54 +125,54 @@ def is_equi_match(sql1: str, sql2: str, dialect: str = "sqlite") -> bool:
         return False
 
 
-# demo
-sql_1 = '''
-SELECT 
-    id_card, 
-    name, 
-    to_place, 
-    to_place_address, 
-    start_time
-FROM (
-    SELECT 
-        id_card, 
-        name, 
-        to_place, 
-        to_place_address, 
-        start_time,
-        ROW_NUMBER() OVER (
-            PARTITION BY id_card 
-            ORDER BY start_time DESC
-        ) T114514
-    FROM zh_gj_info
-    WHERE name = '张三'
-) T1919810
-WHERE T114514 = 1;
-'''
+# # demo
+# sql_1 = '''
+# SELECT 
+#     id_card, 
+#     name, 
+#     to_place, 
+#     to_place_address, 
+#     start_time
+# FROM (
+#     SELECT 
+#         id_card, 
+#         name, 
+#         to_place, 
+#         to_place_address, 
+#         start_time,
+#         ROW_NUMBER() OVER (
+#             PARTITION BY id_card 
+#             ORDER BY start_time DESC
+#         ) T114514
+#     FROM zh_gj_info
+#     WHERE name = '张三'
+# ) T1919810
+# WHERE T114514 = 1;
+# '''
 
-sql_2 = '''
-WITH T1 AS (
-    SELECT 
-        id_card, 
-        name, 
-        to_place, 
-        to_place_address, 
-        start_time,
-        ROW_NUMBER() OVER (
-            PARTITION BY id_card 
-            ORDER BY start_time DESC
-        ) T2
-    FROM zh_gj_info
-    WHERE name = '张三'
-)
-SELECT 
-    id_card, 
-    name, 
-    to_place_address, 
-    to_place, 
-    start_time
-FROM T1
-WHERE T2 = 1;
-'''
+# sql_2 = '''
+# WITH T1 AS (
+#     SELECT 
+#         id_card, 
+#         name, 
+#         to_place, 
+#         to_place_address, 
+#         start_time,
+#         ROW_NUMBER() OVER (
+#             PARTITION BY id_card 
+#             ORDER BY start_time DESC
+#         ) T2
+#     FROM zh_gj_info
+#     WHERE name = '张三'
+# )
+# SELECT 
+#     id_card, 
+#     name, 
+#     to_place_address, 
+#     to_place, 
+#     start_time
+# FROM T1
+# WHERE T2 = 1;
+# '''
 
-print(is_equi_match(sql_1, sql_2))
+# print(is_equi_match(sql_1, sql_2))

@@ -3,7 +3,7 @@ import pandas as pd
 from ExecMatch import is_exec_match
 from EquiMatch import is_equi_match
 
-def evalText2SQL(dataset_path, ignore_extra_columns=False):
+def evalText2SQL(dataset_path, db_path, ignore_extra_columns=False):
     dataset = pd.read_csv(dataset_path)
     querys = dataset['query']
     results = []
@@ -24,7 +24,7 @@ def evalText2SQL(dataset_path, ignore_extra_columns=False):
     exec_matchs = []
     for gold_sql, predict_sql in zip(dataset['gold_sql'], dataset['predict_sql']):
         equi_match = is_equi_match(gold_sql, predict_sql)
-        exec_match = is_exec_match(pred_sql=predict_sql, gold_sql=gold_sql, db_path='/home/xuzequan/WORKSPACE/SQL_Evaluation/dset.sqlite', ignore_extra_columns=ignore_extra_columns)
+        exec_match = is_exec_match(pred_sql=predict_sql, gold_sql=gold_sql, db_path=db_path, ignore_extra_columns=ignore_extra_columns)
         equi_matchs.append(equi_match)
         exec_matchs.append(exec_match)
     dataset['equi_match'] = equi_matchs
@@ -39,5 +39,5 @@ def evalText2SQL(dataset_path, ignore_extra_columns=False):
 
 
 if __name__ == '__main__':
-    df,_,_ = evalText2SQL('/home/xuzequan/WORKSPACE/SQL_Evaluation/dataset.csv', ignore_extra_columns=True)
-    df.to_csv('/home/xuzequan/WORKSPACE/SQL_Evaluation/dataset_predict_ignore.csv', index=False)
+    df,_,_ = evalText2SQL('/home/xuzequan/WORKSPACE/SQL_Evaluation/dataset.csv', '/home/xuzequan/WORKSPACE/SQL_Evaluation/dset.sqlite', ignore_extra_columns=True)
+    df.to_csv('/home/xuzequan/WORKSPACE/SQL_Evaluation/dataset_predict_ignore.csv', index=False
