@@ -1,5 +1,6 @@
 import sqlite3
 import pandas as pd
+import numpy as np
 
 def execute_sql(sql_query, connection):
     """
@@ -8,8 +9,7 @@ def execute_sql(sql_query, connection):
     try:
         return pd.read_sql_query(sql_query, connection)
     except Exception as e:
-        print(f"Error executing SQL query: {e}")
-        return None
+        return e
 
 def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bool:
     """
@@ -31,9 +31,10 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
     # 关闭数据库连接
     conn.close()
     
-    if pred_result is None or gold_result is None:
-        # print("Error in executing one of the SQL queries.")
-        return False
+    if isinstance(pred_result, Exception):
+        return False, f"Error executing SQL query: {pred_result}"
+    if isinstance(gold_result, Exception):
+        return False, f"Gold SQL design error: {gold_result}"
     
     # 提取数值部分，忽略列名
     pred_values = pred_result.values
@@ -52,7 +53,7 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
         
         if not common_columns:
             # print("Predicted SQL query does not contain the required columns.")
-            return False
+            return False, "Predicted SQL query does not contain the required columns."
         
         # print(f"Common columns based on values: {common_columns}")
         # 只保留在pred_result中与gold_result匹配的列
@@ -66,7 +67,7 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
     # 检查列数是否一致
     if pred_values.shape[1] != gold_values.shape[1]:
         # print("The number of columns in the predicted and gold queries do not match.")
-        return False
+        return False, "The number of columns in the predicted and gold queries do not match."
     
     # 检查 gold_sql 中是否包含 "ORDER BY"
     ignore_order = "ORDER BY" not in gold_sql.upper()
@@ -74,6 +75,8 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
     # 如果需要忽略顺序，对数据进行排序
     if ignore_order:
         # 对每列的数据进行排序，忽略列顺序
+        pred_values = np.where(pred_values == None, np.nan, pred_values)
+        gold_values = np.where(gold_values == None, np.nan, gold_values)
         pred_values_sorted = [tuple(sorted(pred_values[:, i])) for i in range(pred_values.shape[1])]
         gold_values_sorted = [tuple(sorted(gold_values[:, i])) for i in range(gold_values.shape[1])]
         
@@ -88,10 +91,10 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
     # 检查pred_result和gold_result中的列是否一致
     if pred_columns == gold_columns:
         # print("The predicted SQL query matches the gold query.")
-        return True  # 完全匹配
+        return True, None  # 完全匹配
     else:
         # print("The predicted SQL query is incorrect.")
-        return False  # 结果不匹配
+        return False, "The predicted SQL query is incorrect."  # 结果不匹配
     
 # # demo
 # db_path = './SQL_Evaluation/dset.sqlite'
@@ -117,7 +120,7 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
 #     WHERE name = '张三'
 # ) T1919810
 # WHERE T114514 = 1
-# ORDER BY id_card ASC;
+# ORDER BY id_card DESC;
 # '''
 
 # gold_sql = '''
