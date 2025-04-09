@@ -107,7 +107,7 @@ def expressions_equal(expr1: Expression, expr2: Expression) -> bool:
     # print(expr1, " 与 ", expr2, " 相等")
     return True, None
 
-def is_equi_match(sql1: str, sql2: str, dialect: str = "sqlite") -> bool:
+def is_equi_match(sql1: str, sql2: str, dialect: str = "sqlite"):
     """
     判断两条 SQL 是否等价（基于 AST 解析），自动处理查询1与查询2之间严格的别名映射。
     """
