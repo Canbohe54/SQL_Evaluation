@@ -40,4 +40,4 @@ def evalText2SQL(dataset_path, db_path, ignore_extra_columns=False):
 
 if __name__ == '__main__':
     df,_,_ = evalText2SQL('/home/xuzequan/WORKSPACE/SQL_Evaluation/dataset.csv', '/home/xuzequan/WORKSPACE/SQL_Evaluation/dset.sqlite', ignore_extra_columns=True)
-    df.to_csv('/home/xuzequan/WORKSPACE/SQL_Evaluation/dataset_predict_ignore.csv', index=False
+    df.to_csv('/home/xuzequan/WORKSPACE/SQL_Evaluation/dataset_predict_ignore.csv', index=False)

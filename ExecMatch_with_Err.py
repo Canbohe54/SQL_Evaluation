@@ -75,10 +75,11 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
     # 如果需要忽略顺序，对数据进行排序
     if ignore_order:
         # 对每列的数据进行排序，忽略列顺序
-        pred_values = np.where(pred_values == None, np.nan, pred_values)
-        gold_values = np.where(gold_values == None, np.nan, gold_values)
-        pred_values_sorted = [tuple(sorted(pred_values[:, i])) for i in range(pred_values.shape[1])]
-        gold_values_sorted = [tuple(sorted(gold_values[:, i])) for i in range(gold_values.shape[1])]
+        pred_values = np.where(pred_values == None, "", pred_values)
+        gold_values = np.where(gold_values == None, "", gold_values)
+        pred_values_sorted = sorted([tuple(col) for col in zip(*pred_values)])
+        gold_values_sorted = sorted([tuple(col) for col in zip(*gold_values)])
+        # fixed 不会打算每一列顺序，而是忽略列顺序
         
         # 将列数据作为集合进行比较，忽略列顺序
         pred_columns = set(pred_values_sorted)
@@ -96,55 +97,16 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
         # print("The predicted SQL query is incorrect.")
         return False, "The predicted SQL query is incorrect."  # 结果不匹配
     
-# # demo
-# db_path = './SQL_Evaluation/dset.sqlite'
-# pred_sql = '''
-# SELECT 
-#     id_card, 
-#     name, 
-#     to_place, 
-#     to_place_address, 
-#     start_time
-# FROM (
-#     SELECT 
-#         id_card, 
-#         name, 
-#         to_place, 
-#         to_place_address, 
-#         start_time,
-#         ROW_NUMBER() OVER (
-#             PARTITION BY id_card 
-#             ORDER BY start_time DESC
-#         ) T114514
-#     FROM res_zh_gj_info
-#     WHERE name = '张三'
-# ) T1919810
-# WHERE T114514 = 1
-# ORDER BY id_card DESC;
-# '''
+# demo
+db_path = './database/dset.sqlite'
+pred_sql = '''
+SELECT * FROM graph_tag_idcard_base
+WHERE xm LIKE '李%';
+'''
 
-# gold_sql = '''
-# WITH T1 AS (
-#     SELECT 
-#         id_card, 
-#         name, 
-#         to_place, 
-#         to_place_address, 
-#         start_time,
-#         ROW_NUMBER() OVER (
-#             PARTITION BY id_card 
-#             ORDER BY start_time DESC
-#         ) T2
-#     FROM res_zh_gj_info
-#     WHERE name = '张三'
-# )
-# SELECT 
-#     id_card AS gmsfhm,
-#     name, 
-#     to_place_address, 
-#     to_place
-# FROM T1
-# WHERE T2 = 1;
-# '''
+gold_sql = '''
+SELECT * FROM graph_tag_idcard_base
+WHERE xm LIKE '李%';
+'''
 
-# print(is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=True))
+print(is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False))

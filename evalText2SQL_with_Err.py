@@ -8,7 +8,7 @@ def evalText2SQL(dataset_path, db_path, ignore_extra_columns=False):
     querys = dataset['query']
     results = []
     for query in querys:
-        url = 'http://localhost:18888/api/v0/generate_sql'
+        url = 'http://localhost:8084/api/v0/generate_sql'
         params = {
             'question': query
         }
@@ -18,7 +18,7 @@ def evalText2SQL(dataset_path, db_path, ignore_extra_columns=False):
             results.append(response['text'])
         else:
             results.append('Vanna.AI error, response text: ' + response['text'])
-    dataset['predict_sql'] = results
+    dataset['pred_sql'] = results
 
     equi_golds = []
     equi_preds = []
@@ -26,7 +26,7 @@ def evalText2SQL(dataset_path, db_path, ignore_extra_columns=False):
     equi_msgs = []
     exec_matchs = []
     exec_msgs = []
-    for gold_sql, predict_sql in zip(dataset['gold_sql'], dataset['predict_sql']):
+    for gold_sql, predict_sql in zip(dataset['gold_sql'], dataset['pred_sql']):
         equi_gold, equi_pred, equi_match, equi_msg = is_equi_match(gold_sql, predict_sql)
         exec_match, exec_msg = is_exec_match(pred_sql=predict_sql, gold_sql=gold_sql, db_path=db_path, ignore_extra_columns=ignore_extra_columns)
         equi_golds.append(equi_gold)
@@ -51,5 +51,5 @@ def evalText2SQL(dataset_path, db_path, ignore_extra_columns=False):
 
 
 if __name__ == '__main__':
-    df,_,_ = evalText2SQL('/home/xuzequan/WORKSPACE/SQL_Evaluation/dataset.csv', '/home/xuzequan/WORKSPACE/SQL_Evaluation/dset.sqlite', ignore_extra_columns=True)
-    df.to_csv('/home/xuzequan/WORKSPACE/SQL_Evaluation/dataset_predict_with_error.csv', index=False)
+    df,_,_ = evalText2SQL('/data1/WORKSPACE/SQL_Evaluation/dataset.csv', '/data1/WORKSPACE/database/dset.sqlite', ignore_extra_columns=True)
+    df.to_csv('/data1/WORKSPACE/SQL_Evaluation/dataset_predict_with_error.csv', index=False)

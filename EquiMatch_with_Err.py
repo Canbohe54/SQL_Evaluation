@@ -13,6 +13,10 @@ def get_alias_map(expression: Expression) -> dict:
             alias_map[node.alias] = node.this  # 记录别名映射
         elif isinstance(node, CTE):
             alias_map[node.alias] = node  # 将 CTE 别名加入映射
+        elif isinstance(node, TableAlias):
+            print(node.dump())
+            # TableAlias: alias 是 node.alias，实际表结构是 node.this
+            alias_map[node.this.this] = node
     return alias_map
 
 def match_aliases(alias_map_sql1: dict, alias_map_sql2: dict) -> dict:
@@ -117,9 +121,11 @@ def is_equi_match(sql1: str, sql2: str, dialect: str = "sqlite"):
 
         alias_map_sql1 = get_alias_map(expr1)
         alias_map_sql2 = get_alias_map(expr2)
+        print(alias_map_sql1)
+        print(alias_map_sql2)
 
         alias_mapping = match_aliases(alias_map_sql1, alias_map_sql2)
-        # print(f"别名映射: {alias_mapping}")
+        print(f"别名映射: {alias_mapping}")
 
         expr1 = normalize_expression(expr1, alias_mapping)  # 只修改查询1的别名
         result, msg = expressions_equal(expr1, expr2)
@@ -129,23 +135,17 @@ def is_equi_match(sql1: str, sql2: str, dialect: str = "sqlite"):
         return None, None, False, f"Error parsing SQL: {e}"
 
 
-# # demo
-# sql_1 = '''
-# SELECT * FROM res_zh_gj_info WHERE car_number = '鲁A12345';
-# '''
+# demo
+sql_1 = '''
+SELECT e.employee_id, e.first_name, e.last_name, d.department_name 
+    FROM employees e 
+    JOIN departments d ON e.department_id = d.department_id;
+'''
 
-# sql_2 = '''
-# SELECT 
-#     t.car_number AS 车牌号码,
-#     t.from_place AS 出发地,
-#     t.to_place AS 到达地,
-#     t.start_time AS 开始时间,
-#     t.end_time AS 到达时间,
-#     t.trace_status_name AS 轨迹状态
-# FROM 
-#     res_zh_gj_info t
-# WHERE 
-#     t.car_number = '鲁A12345';
-# '''
+sql_2 = '''
+SELECT e.employee_id, e.first_name, e.last_name, dp.department_name 
+    FROM employees e 
+    JOIN departments dp ON e.department_id = dp.department_id;
+'''
 
-# print(is_equi_match(sql_1, sql_2))
+print(is_equi_match(sql_1, sql_2))
