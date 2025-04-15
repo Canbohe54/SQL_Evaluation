@@ -44,25 +44,27 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
     if ignore_extra_columns:
         # 通过数值比较来确定共享列，而不是列名
         common_columns = []
+        temp_gold_result_columns = list(gold_result.columns)
         for pred_col in pred_result.columns:
-            for gold_col in gold_result.columns:
+            for gold_col in temp_gold_result_columns:
                 # 通过比较列的值来确定是否相同
                 if (set(pred_result[pred_col]) == set(gold_result[gold_col])):
                     common_columns.append(pred_col)
+                    temp_gold_result_columns.remove(gold_col)
                     break
         
         if not common_columns:
             # print("Predicted SQL query does not contain the required columns.")
             return False, "Predicted SQL query does not contain the required columns."
         
-        # print(f"Common columns based on values: {common_columns}")
+        print(f"Common columns based on values: {common_columns}")
         # 只保留在pred_result中与gold_result匹配的列
         pred_result = pred_result[common_columns]
         pred_values = pred_result.values  # 重新获取经过筛选后的数值部分
     
-    # 提取数值部分，忽略列名
-    pred_values = pred_result.values
-    gold_values = gold_result.values
+    # print(pred_values.shape[1])
+    # print()
+    # print(gold_values.shape[1])
     
     # 检查列数是否一致
     if pred_values.shape[1] != gold_values.shape[1]:
@@ -80,7 +82,8 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
         pred_values_sorted = sorted([tuple(col) for col in zip(*pred_values)])
         gold_values_sorted = sorted([tuple(col) for col in zip(*gold_values)])
         # fixed 不会打算每一列顺序，而是忽略列顺序
-        
+        # print("pred_values_sorted", pred_values_sorted)
+        # print("gold_values_sorted", gold_values_sorted)
         # 将列数据作为集合进行比较，忽略列顺序
         pred_columns = set(pred_values_sorted)
         gold_columns = set(gold_values_sorted)
@@ -97,16 +100,38 @@ def is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False) -> bo
         # print("The predicted SQL query is incorrect.")
         return False, "The predicted SQL query is incorrect."  # 结果不匹配
     
-# demo
-db_path = './database/dset.sqlite'
-pred_sql = '''
-SELECT * FROM graph_tag_idcard_base
-WHERE xm LIKE '李%';
-'''
+# # demo
+# db_path = './database/dset.sqlite'
+# pred_sql = '''
+# SELECT 
+#     *
+# FROM 
+#     res_0_clda_jdc
+# WHERE 
+#     hphm = '鲁A12345';
+# '''
 
-gold_sql = '''
-SELECT * FROM graph_tag_idcard_base
-WHERE xm LIKE '李%';
-'''
+# gold_sql = '''
+# SELECT 
+#     hphm, 
+#     hpzl, 
+#     hpys, 
+#     clsbdh, 
+#     syr, 
+#     sfzmhm, 
+#     sfzmmc, 
+#     clpp1, 
+#     clpp2, 
+#     clxh, 
+#     ccdjrq, 
+#     fprq, 
+#     yxqz, 
+#     bxzzrq, 
+#     ccrq
+# FROM 
+#     res_0_clda_jdc
+# WHERE 
+#     hphm = '鲁A12345';
+# '''
 
-print(is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=False))
+# print(is_exec_match(pred_sql, gold_sql, db_path, ignore_extra_columns=True))

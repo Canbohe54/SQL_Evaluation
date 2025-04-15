@@ -13,10 +13,10 @@ def get_alias_map(expression: Expression) -> dict:
             alias_map[node.alias] = node.this  # 记录别名映射
         elif isinstance(node, CTE):
             alias_map[node.alias] = node  # 将 CTE 别名加入映射
-        elif isinstance(node, TableAlias):
-            print(node.dump())
-            # TableAlias: alias 是 node.alias，实际表结构是 node.this
-            alias_map[node.this.this] = node
+        elif isinstance(node, TableAlias) and isinstance(node.parent, Table):
+            alias = node.this.this  # 表别名（如 "d", "dp"）
+            actual_table = node.parent  # 实际 Table 节点
+            alias_map[alias] = actual_table
     return alias_map
 
 def match_aliases(alias_map_sql1: dict, alias_map_sql2: dict) -> dict:
@@ -100,7 +100,7 @@ def expressions_equal(expr1: Expression, expr2: Expression) -> bool:
         elif isinstance(val1, list) and isinstance(val2, list):
             # 在列表比较时，进行无序比较（递归比较每个元素）
             if not compare_lists_unordered(val1, val2):
-                # print(expr1.sql(pretty=True), " 与 ", expr2.sql(pretty=True), " 比较失败")
+                # print(expr1.to_s(), " 与 ", expr2.to_s(), " 比较失败")
                 # print(f"比较失败: {val1} 与 {val2} 不相等")
                 return False, f"Match failed: [SubSQLList] {[item.sql(pretty=True) for item in val1]} and [SubSQLList] {[item.sql(pretty=True) for item in val2]} are not equal."
         else:
@@ -121,11 +121,11 @@ def is_equi_match(sql1: str, sql2: str, dialect: str = "sqlite"):
 
         alias_map_sql1 = get_alias_map(expr1)
         alias_map_sql2 = get_alias_map(expr2)
-        print(alias_map_sql1)
-        print(alias_map_sql2)
+        # print(alias_map_sql1)
+        # print(alias_map_sql2)
 
         alias_mapping = match_aliases(alias_map_sql1, alias_map_sql2)
-        print(f"别名映射: {alias_mapping}")
+        # print(f"别名映射: {alias_mapping}")
 
         expr1 = normalize_expression(expr1, alias_mapping)  # 只修改查询1的别名
         result, msg = expressions_equal(expr1, expr2)
@@ -135,17 +135,17 @@ def is_equi_match(sql1: str, sql2: str, dialect: str = "sqlite"):
         return None, None, False, f"Error parsing SQL: {e}"
 
 
-# demo
-sql_1 = '''
-SELECT e.employee_id, e.first_name, e.last_name, d.department_name 
-    FROM employees e 
-    JOIN departments d ON e.department_id = d.department_id;
-'''
+# # demo
+# sql_1 = '''
+# SELECT e.employee_id, e.first_name, e.last_name, d.department_name 
+#     FROM employees e 
+#     JOIN departments d ON e.department_id = d.department_id;
+# '''
 
-sql_2 = '''
-SELECT e.employee_id, e.first_name, e.last_name, dp.department_name 
-    FROM employees e 
-    JOIN departments dp ON e.department_id = dp.department_id;
-'''
+# sql_2 = '''
+# SELECT e.employee_id, e.first_name, e.last_name, dp.department_name, dp.location_id
+#     FROM employees e 
+#     JOIN departments dp ON e.department_id = dp.department_id;
+# '''
 
-print(is_equi_match(sql_1, sql_2))
+# print(is_equi_match(sql_1, sql_2))
