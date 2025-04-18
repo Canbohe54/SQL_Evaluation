@@ -57,14 +57,14 @@ def is_equi_match_with_llm(sql1: str, sql2: str, base_url, api_key, model_name, 
     result_dict = json.loads(result)
     return result_dict
 
-sql1 = """
-SELECT a.name, b.order_date 
-FROM customers a 
-INNER JOIN orders b ON a.id = b.customer_id;"""
+# sql1 = """
+# SELECT a.name, b.order_date 
+# FROM customers a 
+# INNER JOIN orders b ON a.id = b.customer_id;"""
 
-sql2 = """
-SELECT a.name, b.order_date 
-FROM customers a, orders b 
-WHERE a.id = b.customer_id;"""
+# sql2 = """
+# SELECT a.name, b.order_date 
+# FROM customers a, orders b 
+# WHERE a.id = b.customer_id;"""
 
-print(is_equi_match_with_llm(sql1, sql2, "http://10.10.202.242:2099/v1", "not_used" ,"qwen2.5-72b-instruct" , 0.7))
+# print(is_equi_match_with_llm(sql1, sql2, "http://10.10.202.242:2096/v1", "not_used" ,"qwen2.5-instruct" , 0.7))
